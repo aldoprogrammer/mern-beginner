@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 function App() {
@@ -19,7 +19,6 @@ function App() {
         }
       )
     })
-    console.log(item);
   }
 
   function addItem(e){
@@ -30,10 +29,34 @@ function App() {
     }
     axios.post('/newItem', newItem)
     console.log(newItem);
-
+    alert("Item added successfully")
+    setItem({
+      title: '',
+      description: ''
+    })
   }
+
+  const [items, setItems] = useState([
+    {
+      title: '',
+      description: '',
+      _id: ''
+    }
+  ])
+
+  useEffect(() =>{
+    fetch('/items')
+    .then((res) => {
+      if(res.ok) {
+        return res.json()
+      }
+    })
+    .then(jsonRes => setItems(jsonRes))
+    .catch(err => console.error(err))
+  }, [items])
   return (
     <div className="App">
+      <div className='main'>
       <input 
        onChange={handleChange} 
        name='title' 
@@ -49,6 +72,19 @@ function App() {
        <button
         onClick={addItem}
        >Add Item</button>
+       </div>
+       {
+        items.map(item => {
+          return (
+            <div key={item._id} style={{background: 'pink', width: '40%', margin: 'auto auto'}}>
+            <p>{item.title}</p>
+            <p>{item.description}</p>
+            <button>Delete</button>
+            <button>Update</button>
+            </div>
+          )
+        })
+       }
     </div>
   );
 }
